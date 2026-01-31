@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Query
 from bson import ObjectId
 from app.core.auth import get_current_user
 from app.database import get_db
-from app.models.recipe import RecipeCreate
+from app.models.recipe import RecipeCreate, RecipeUpdate
 from app.core.limiter import limiter
 from app.core.validators import validate_object_id
 from app.core.exceptions import NotFoundException, ForbiddenException, BadRequestException
@@ -57,10 +57,16 @@ def list_recipes(
         query["title"] = {"$regex": search, "$options": "i"}
 
     if category:
-        query["category"] = category
+        query["category"] = {"$regex": category, "$options": "i"}
+
 
     if ingredient:
-        query["ingredients"] = {"$in": [ingredient]}
+        query["ingredients"] = {
+        "$elemMatch": {
+            "$regex": ingredient,
+            "$options": "i"
+        }
+    }
 
     skip = (page - 1) * limit
     recipes = []
@@ -72,10 +78,13 @@ def list_recipes(
     return recipes
 
 @router.patch("/{recipe_id}")
-def update_recipe(recipe: RecipeCreate, recipe_id: str = Depends(validate_object_id), user=Depends(get_current_user)):
+def update_recipe(recipe_id: str, recipe: RecipeUpdate, user=Depends(get_current_user)):
     """
     Update an existing recipe for the logged-in user.
     """
+    from app.core.validators import validate_object_id
+    validate_object_id(recipe_id)
+
     db = get_db()
     existing = db.recipes.find_one({"_id": ObjectId(recipe_id)})
 
@@ -83,20 +92,23 @@ def update_recipe(recipe: RecipeCreate, recipe_id: str = Depends(validate_object
         raise NotFoundException("Recipe not found")
 
     if existing["owner_email"] != user["email"]:
-        raise ForbiddenException("Not allowed")
+        raise ForbiddenException()
 
     db.recipes.update_one(
         {"_id": ObjectId(recipe_id)},
-        {"$set": recipe.model_dump()}
+        {"$set": {k: v for k, v in recipe.model_dump().items() if v is not None}}
     )
 
     return {"message": "Updated"}
 
 @router.delete("/{recipe_id}")
-def delete_recipe(recipe_id: str = Depends(validate_object_id), user=Depends(get_current_user)):
+def delete_recipe(recipe_id: str, user=Depends(get_current_user)):
     """
     Delete an existing recipe for the logged-in user.
     """
+    from app.core.validators import validate_object_id
+    validate_object_id(recipe_id)
+
     db = get_db()
     existing = db.recipes.find_one({"_id": ObjectId(recipe_id)})
 
@@ -104,13 +116,13 @@ def delete_recipe(recipe_id: str = Depends(validate_object_id), user=Depends(get
         raise NotFoundException("Recipe not found")
 
     if existing["owner_email"] != user["email"]:
-        raise ForbiddenException("Not allowed")
+        raise ForbiddenException()
 
     db.recipes.delete_one({"_id": ObjectId(recipe_id)})
     return {"message": "Deleted"}
 
 @router.get("/{recipe_id}")
-def get_recipe(recipe_id: str = Depends(validate_object_id), user=Depends(get_current_user)):
+def get_recipe(recipe_id: str, user=Depends(get_current_user)):
     """
     Get a specific recipe for the logged-in user.
     """

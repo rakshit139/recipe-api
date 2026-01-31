@@ -1,3 +1,4 @@
+from typing import Optional
 from pydantic import BaseModel, Field, field_validator
 
 class RecipeCreate(BaseModel):
@@ -13,7 +14,11 @@ class RecipeCreate(BaseModel):
             raise ValueError("Ingredients cannot be empty strings")
         return v
 
-
+class RecipeUpdate(BaseModel):
+    title: Optional[str] = None
+    ingredients: Optional[list[str]] = None
+    instructions: Optional[str] = None
+    category: Optional[str] = None
 
 class RecipeOut(RecipeCreate):
     id: str
