@@ -14,7 +14,10 @@ def register(request:Request, user: UserCreate):
     db = get_db()
     
     if db.users.find_one({"email": user.email}):
-        raise HTTPException(400, "User already exists")
+        raise HTTPException(
+            status_code=400,
+            detail="User already exists. Please login."
+        )
 
     hashed = hash_password(user.password)
 
@@ -27,15 +30,21 @@ def register(request:Request, user: UserCreate):
 
 @router.post("/login")
 @limiter.limit("5/minute")
-def login(request:Request, user: UserLogin):
+def login(request: Request, user: UserLogin):
     db = get_db()
     db_user = db.users.find_one({"email": user.email})
 
     if not db_user:
-        raise HTTPException(401, "Invalid credentials")
+        raise HTTPException(
+            status_code=404,
+            detail="User not found. Please register."
+        )
 
     if not verify_password(user.password, db_user["password"]):
-        raise HTTPException(401, "Invalid credentials")
+        raise HTTPException(
+            status_code=401,
+            detail="Wrong credentials."
+        )
 
     token = create_access_token({"sub": user.email})
     return {"access_token": token, "token_type": "bearer"}
