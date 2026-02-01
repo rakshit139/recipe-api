@@ -1,17 +1,35 @@
-# Recipe API
-A production-style REST API built with:
-- FastAPI
-- MongoDB
-- JWT Authentication
+🍽️ Recipe Manager — Full Stack App
 
-## Features
-- User authentication
-- Recipe CRUD
-- Search & filtering
-- Pagination
-- Rate limiting
-- Input validation
+A full-stack recipe management application built with FastAPI, MongoDB, JWT Authentication, and a React + Tailwind frontend.
 
-## Run locally
+Users can:
+
+Register & login
+
+Create, edit, delete recipes
+
+Search & filter recipes
+
+Expand recipes to view details
+
+Securely manage their own data
+
+⚙️ Setup Instructions
+
+1️⃣ Backend
+cd app
+python -m venv venv
+venv\Scripts\activate   # Windows
 pip install -r requirements.txt
 uvicorn app.main:app --reload
+
+Create a .env file:
+SECRET_KEY=your_secret
+MONGO_URL=mongodb://localhost:27017
+
+2️⃣ Frontend
+cd frontend/ui-recipe
+npm install
+npm run dev
+
+http://localhost:8000
