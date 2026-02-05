@@ -4,12 +4,12 @@ from app.models.user import UserCreate, UserLogin
 from app.core.auth import get_current_user
 from app.core.security import hash_password, verify_password, create_access_token
 from app.core.limiter import limiter
-
+from app.core.limiter import rate_limit_exempt
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 @router.post("/register")
-@limiter.limit("10/minute")
+@limiter.limit("10/minute",exempt_when=rate_limit_exempt)
 def register(request:Request, user: UserCreate):
     db = get_db()
     
@@ -29,7 +29,7 @@ def register(request:Request, user: UserCreate):
     return {"message": "User created"}
 
 @router.post("/login")
-@limiter.limit("5/minute")
+@limiter.limit("5/minute",exempt_when=rate_limit_exempt)
 def login(request: Request, user: UserLogin):
     db = get_db()
     db_user = db.users.find_one({"email": user.email})
