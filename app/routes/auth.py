@@ -9,8 +9,8 @@ from app.core.limiter import rate_limit_exempt
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 @router.post("/register")
-@limiter.limit("10/minute",exempt_when=rate_limit_exempt)
-def register(request:Request, user: UserCreate):
+# @limiter.limit("10/minute",exempt_when=rate_limit_exempt)
+def register(user: UserCreate):
     db = get_db()
     
     if db.users.find_one({"email": user.email}):
@@ -29,8 +29,8 @@ def register(request:Request, user: UserCreate):
     return {"message": "User created"}
 
 @router.post("/login")
-@limiter.limit("5/minute",exempt_when=rate_limit_exempt)
-def login(request: Request, user: UserLogin):
+# @limiter.limit("5/minute",exempt_when=rate_limit_exempt)
+def login(user: UserLogin):
     db = get_db()
     db_user = db.users.find_one({"email": user.email})
 
