@@ -20,7 +20,7 @@ app.add_middleware(
         "https://recipe-ectoexs3b-rakshits-projects.vercel.app"
     ],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
