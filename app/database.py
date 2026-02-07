@@ -1,11 +1,16 @@
 from pymongo import MongoClient
-from dotenv import load_dotenv
 import os
 
-load_dotenv()
+MONGO_URI = os.getenv("MONGO_URI")
+DB_NAME = os.getenv("DB_NAME")
 
-client = MongoClient(os.getenv("MONGO_URI"))
-db = client[os.getenv("DB_NAME")]
+client = MongoClient(
+    MONGO_URI,
+    tls=True,
+    tlsAllowInvalidCertificates=True
+)
+
+db = client[DB_NAME]
 
 def get_db():
     return db
