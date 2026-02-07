@@ -16,11 +16,8 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://recipe-d1942weg-rakshits-projects.vercel.app",
-        "https://recipe-ectoexs3b-rakshits-projects.vercel.app",
-    ],
-    allow_credentials=True,
+    allow_origins=["*"],   # allow ALL origins
+    allow_credentials=False,  # <-- IMPORTANT
     allow_methods=["*"],
     allow_headers=["*"],
 )
