@@ -10,10 +10,12 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
 def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
+    safe_password = password[:72]
+    return pwd_context.hash(safe_password)
 
-def verify_password(plain: str, hashed: str) -> bool:
-    return pwd_context.verify(plain, hashed)
+def verify_password(password: str, hashed: str) -> bool:
+    safe_password = password[:72]
+    return pwd_context.verify(safe_password, hashed)
 
 def create_access_token(data: dict):
     to_encode = data.copy()
