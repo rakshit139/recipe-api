@@ -38,7 +38,16 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    loadRecipes();
+  const token = localStorage.getItem("token");
+
+  // 🚫 If not logged in, kick out immediately
+  if (!token) {
+    window.location.href = "/login";
+    return;
+  }
+
+  // ✅ Only load recipes if token exists
+  loadRecipes();
   }, [search, filterCategory, filterIngredient]);
 
   const handleSubmit = async (e) => {
